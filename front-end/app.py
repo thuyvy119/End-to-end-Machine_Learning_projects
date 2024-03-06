@@ -3,16 +3,17 @@ import pickle
 import numpy as np
 import requests
 
-# load model
-model = pickle.load(open('saved_model.pkl', 'rb'))
+# define API URL endpoint
+Api_url = "http://127.0.0.1:8000/predict"
 
-# prediction function
-def predict_stroke(features):
-    features = np.array(features).reshape(1, -1)
-    prediction = model.predict(features)
-    probability = model.predict_proba(features)[0][1]
-
-    return prediction, probability
+# function to make prediction using the API
+def prediction(data):
+    response = requests.post(Api_url, json= data)
+    if response.status_code == 200:
+        result= response.json()
+        return result["prediction"], result["probability"]
+    else:
+        st.error("Sorry! An error occurred while making decision.")
 
 # create web app
 def main():
@@ -33,6 +34,9 @@ def main():
     smoking_status = st.selectbox("Smoking status", ("Never smoked", "Unknown", "Formerly smoked", "Smokes"))
 
     # convert categorical inputs to numerical data
+    age = int(age)
+    avg_glucose_level= float(avg_glucose_level)
+    bmi = float(bmi)
     gender = 1 if gender == "Male" else 0
     hypertension = 1 if hypertension == "Yes" else 0
     heart_disease = 1 if heart_disease == "Yes" else 0
@@ -61,16 +65,16 @@ def main():
     # create prediction button
     if st.button("Predict Stroke"):
         # collect input features
-        features = [gender, age, hypertension,
+        input_data = [gender, age, hypertension,
                     heart_disease, ever_married,
                     work_type, Residence_type, 
                     avg_glucose_level, bmi, smoking_status]
 
         # predict stroke and probability
-        prediction, probability = predict_stroke(features)
+        prediction, probability = prediction(input_data)
 
         # display result
-        if prediction[0] == 0:
+        if prediction == 0:
             st.write("Congratulations! You do not have a risk of stroke.")
         else:
             st.write("You may be at risk of stroke with the probability of: ", probability)
