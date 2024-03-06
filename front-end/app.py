@@ -1,6 +1,7 @@
 import streamlit as st
 import pickle
 import numpy as np
+import requests
 
 # load model
 model = pickle.load(open('saved_model.pkl', 'rb'))
@@ -60,16 +61,20 @@ def main():
     # create prediction button
     if st.button("Predict Stroke"):
         # collect input features
-        features = [gender, age, hypertension, heart_disease, ever_married, work_type, Residence_type, avg_glucose_level, bmi, smoking_status]
+        features = [gender, age, hypertension,
+                    heart_disease, ever_married,
+                    work_type, Residence_type, 
+                    avg_glucose_level, bmi, smoking_status]
 
         # predict stroke and probability
         prediction, probability = predict_stroke(features)
 
         # display result
         if prediction[0] == 0:
-            st.write("You are totally healthy, you do not have a risk of stroke.")
+            st.write("Congratulations! You do not have a risk of stroke.")
         else:
-            st.write("Please go to the nearest clinic for a check-up, you may be at risk of stroke with the probability of: ", probability)
+            st.write("You may be at risk of stroke with the probability of: ", probability)
+            st.write("You should go to the nearest clinic for a further check-up.")
 
 #run web app
 if __name__ == "__main__":
