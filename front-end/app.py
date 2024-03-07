@@ -6,24 +6,24 @@ import requests
 # define API URL endpoint
 Api_url = "http://127.0.0.1:8000/predict"
 
-# function to make prediction using the API
-def prediction(data):
-    response = requests.post(Api_url, json= data)
-    if response.status_code == 200:
-        result= response.json()
-        return result["prediction"], result["probability"]
-    else:
-        st.error("Sorry! An error occurred while making decision.")
-
 # create web app
 def main():
     # set app title and description
     st.title("Stroke Prediction")
-    st.write("Please provide information to predict the likelihood of stroke.")    
+    st.write("Please provide information to predict the likelihood of stroke.")
+    
+    # function to make prediction using the API
+    def make_prediction(data):
+        response = requests.post(Api_url, json= data)
+        if response.status_code == 200:
+            result= response.json()
+            return result["prediction"], result["probability"]
+        else:
+            st.error("Sorry! An error occurred while making decision.")    
 
     # create input fields for users typing in 
     gender = st.selectbox("Biological sex", ("Male", "Female"))
-    age = st.number_input("Age", min_value = 1, max_value = 120, value = 40)
+    age = st.number_input("Age", min_value = 1.0, max_value = 100.0, value = 40.0)
     hypertension = st.selectbox("Hypertension", ("Yes", "No"))
     heart_disease = st.selectbox("Heart disease", ("Yes", "No"))
     ever_married = st.selectbox("Do you get married?", ("Yes", "No"))
@@ -35,8 +35,6 @@ def main():
 
     # convert categorical inputs to numerical data
     age = int(age)
-    avg_glucose_level= float(avg_glucose_level)
-    bmi = float(bmi)
     gender = 1 if gender == "Male" else 0
     hypertension = 1 if hypertension == "Yes" else 0
     heart_disease = 1 if heart_disease == "Yes" else 0
@@ -71,7 +69,7 @@ def main():
                     avg_glucose_level, bmi, smoking_status]
 
         # predict stroke and probability
-        prediction, probability = prediction(input_data)
+        prediction, probability = make_prediction(input_data)
 
         # display result
         if prediction == 0:
